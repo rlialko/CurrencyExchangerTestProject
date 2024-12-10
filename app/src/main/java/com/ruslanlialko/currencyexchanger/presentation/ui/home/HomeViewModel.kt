@@ -13,6 +13,7 @@ import com.ruslanlialko.currencyexchanger.domain.use_case.base.Outcome
 import com.ruslanlialko.currencyexchanger.presentation.utils.formatAmount
 import com.ruslanlialko.currencyexchanger.presentation.utils.toSafeDouble
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+
+private const val REPEAT_TIME_MS = 5000L
+
 
 class HomeViewModel(
     val getRatesUseCase: GetRatesUseCase,
@@ -35,6 +40,7 @@ class HomeViewModel(
 
     private val _uiOneTimeEvents: MutableSharedFlow<HomeOneTimeEvent> = MutableSharedFlow()
     val oneTimeEventSharedFlow = _uiOneTimeEvents.asSharedFlow()
+
     private var job: Job? = null
 
     init {
@@ -54,31 +60,36 @@ class HomeViewModel(
 
     fun fetchRates() {
         job?.cancel()
-        job = getRatesUseCase().onEach { outcome ->
-            when (outcome) {
-                is Outcome.Loading -> _uiState.update {
-                    it.copy(isLoading = true, error = null)
-                }
+        job = viewModelScope.launch {
+            while (isActive) {
+                getRatesUseCase().collect { outcome ->
+                    when (outcome) {
+                        is Outcome.Loading -> {
+                        }
 
-                is Outcome.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false, allCurrencies = outcome.data!!.rates.keys.toList()
-                        )
+                        is Outcome.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    error = null,
+                                    allCurrencies = outcome.data!!.rates.keys.toList()
+                                )
+                            }
+                        }
+
+                        is Outcome.Error -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    error = outcome.error
+                                )
+                            }
+                        }
                     }
                 }
-
-                is Outcome.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false, error = outcome.error
-                        )
-                    }
-                }
+                delay(REPEAT_TIME_MS)
             }
-
-        }.launchIn(viewModelScope)
-
+        }
     }
 
     fun exchange() {
@@ -162,7 +173,7 @@ class HomeViewModel(
 }
 
 data class HomeUiState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val selectedSellCurrency: String = "EUR",
     val selectedBuyCurrency: String = "USD",
     val sellAmount: String = "0",

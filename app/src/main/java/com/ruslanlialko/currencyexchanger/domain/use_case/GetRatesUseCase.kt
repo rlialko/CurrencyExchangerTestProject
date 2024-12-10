@@ -8,7 +8,6 @@ import com.ruslanlialko.currencyexchanger.domain.use_case.base.FlowUseCase
 import com.ruslanlialko.currencyexchanger.domain.use_case.base.Outcome
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import okio.IOException
 import retrofit2.HttpException
@@ -20,12 +19,9 @@ class GetRatesUseCase(
     override fun execute(params: Unit?) = flow {
         try {
             emit(Outcome.Loading())
-            while (true) {
-                val data = ratesRepository.fetchRates()
-                ratesRepository.saveRates(data)
-                emit(Outcome.Success(data))
-                delay(5000)
-            }
+            val data = ratesRepository.fetchRates()
+            ratesRepository.saveRates(data)
+            emit(Outcome.Success(data))
         } catch (e: HttpException) {
             emit(Outcome.Error(UnknownException(e)))
         } catch (e: IOException) {

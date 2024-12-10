@@ -33,8 +33,9 @@ class GetRatesUseCaseTest {
     @Test
     fun `test get rates success`() = runTest {
         val mockRatesResponse =
-            RatesResponse(base = "USD", date = LocalDate.now(), rates = mapOf("EUR" to 0.85))
+            RatesResponse(base = "EUR", date = LocalDate.now(), rates = mapOf("USD" to 1.1))
         coEvery { repository.fetchRates() } returns mockRatesResponse
+        coEvery { repository.saveRates(any()) } returns Unit
 
         val result = useCase().toList()
 
@@ -47,6 +48,7 @@ class GetRatesUseCaseTest {
     fun `test get rates http exception`() = runTest {
         val exception = mockk<HttpException>()
         coEvery { repository.fetchRates() } throws exception
+        coEvery { repository.saveRates(any()) } returns Unit
 
         val result = useCase().toList()
 
