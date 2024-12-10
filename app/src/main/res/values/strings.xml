@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Currency Exchanger</string>
+
+    <string name="title_activity_main">Currency Exchanger</string>
+
+    <string name="network_error">No internet connection</string>
+    <string name="network_error_message">Please check your internet connection and try again</string>
+
+    <string name="unknown_error">Unknown error</string>
+    <string name="unknown_error_message">An unknown error occurred. Please try again later</string>
+
+    <string name="home_screen_title">Currency Exchanger</string>
+    <string name="transactions_screen_title">Transactions</string>
+    <string name="settings_screen_title">Settings</string>
+
+    <string name="home_tab">Home</string>
+    <string name="transactions_tab">Transactions</string>
+    <string name="settings_tab">Settings</string>
+
+    <string name="exchange_success_message">
+        You have converted %1$s %2$s to %3$s %4$s. Commission Fee: %5$s %2$s
+    </string>
+    <string name="currency_converted">Currency converted</string>
+    <string name="done">Done</string>
+    <string name="sell">Sell</string>
+    <string name="receive">Receive</string>
+    <string name="submit">Submit</string>
+    <string name="retry">Retry</string>
+    <string name="reset_button">Reset all data</string>
+
+    <string name="transaction_format">%1$s %2$s -> %3$s %4$s</string>
+    <string name="commission">Commission: %1$s %2$s</string>
+    <string name="date_format">Date: %1$s</string>
+
+</resources>
