@@ -1,9 +1,12 @@
 package com.ruslanlialko.currencyexchanger.presentation.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,31 +24,31 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                color = MaterialTheme.colorScheme.surface
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (uiState) {
-            SettingsUiState.Initial -> {
-                SettingsInitialState {
-                    viewModel.resetInitialBalance()
-                }
-            }
+        Text(
+            text = stringResource(R.string.settings_screen_title),
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        )
+        
+        Button(
+            onClick = {
+                viewModel.resetInitialBalance()
+            }, modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = stringResource(R.string.reset_button))
         }
     }
 }
-
-@Composable
-fun SettingsInitialState(
-    onSetBalance: () -> Unit
-) {
-
-    Button(
-        onClick = {
-            onSetBalance()
-        }, modifier = Modifier.padding(16.dp)
-    ) {
-        Text(text = stringResource(R.string.reset_button))
-    }
-}
-

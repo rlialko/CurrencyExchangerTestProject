@@ -3,12 +3,12 @@ package com.ruslanlialko.currencyexchanger.presentation.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -29,7 +30,6 @@ import com.ruslanlialko.currencyexchanger.presentation.ui.transactions.Transacti
 
 val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided!") }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -37,11 +37,6 @@ fun AppNavigation() {
 
     CompositionLocalProvider(LocalNavController provides navController) {
         Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(text = stringResource(topLevelRoutes[selectedIndex].screenTitleId)) }
-                )
-            },
             bottomBar = {
                 BottomAppBar {
                     topLevelRoutes.forEachIndexed { index, topLevelRoute ->
@@ -54,6 +49,13 @@ fun AppNavigation() {
                             },
                             label = { Text(text = stringResource(topLevelRoute.nameId)) },
                             selected = selectedIndex == index,
+                            colors = NavigationBarItemDefaults.colors().copy(
+                                selectedIndicatorColor = Color.Transparent,
+                                selectedIconColor = MaterialTheme.colorScheme.secondary,
+                                selectedTextColor = MaterialTheme.colorScheme.secondary,
+                                unselectedIconColor = MaterialTheme.colorScheme.tertiary,
+                                unselectedTextColor = MaterialTheme.colorScheme.tertiary,
+                            ),
                             onClick = {
                                 selectedIndex = index
                                 navController.navigate(topLevelRoute.route) {

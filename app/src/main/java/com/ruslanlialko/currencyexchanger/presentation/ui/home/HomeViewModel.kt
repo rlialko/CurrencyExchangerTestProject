@@ -180,7 +180,7 @@ data class HomeUiState(
     val buyAmount: String = "0",
     val error: Throwable? = null,
     val balances: List<Balance> = emptyList(),
-    val allCurrencies: List<String>? = null,
+    val allCurrencies: List<String> = emptyList(),
     val latestTransaction: Transaction? = null
 )
 

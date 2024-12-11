@@ -1,124 +1,118 @@
 package com.ruslanlialko.currencyexchanger.presentation.ui.home.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.ruslanlialko.currencyexchanger.presentation.theme.CurrencyExchangerTheme
+import com.ruslanlialko.currencyexchanger.presentation.utils.getFlagEmoji
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyInputField(
-    painter: Painter,
-    color: Color,
     label: String,
     selectedCurrency: String,
-    currencies: List<String>,
-    onCurrencySelected: (String) -> Unit,
+    onCurrencyClick: () -> Unit,
     amount: String,
     onAmountChange: ((String) -> Unit) = {},
     amountReadOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(16.dp),
     ) {
-        Icon(
-            painter = painter,
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(36.dp)
-                .background(color = color, shape = RoundedCornerShape(36.dp))
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+            ),
+            modifier = Modifier.padding(bottom =4.dp),
         )
 
-        TextField(
-            value = amount,
-            leadingIcon = {
-                Text(text = label)
-            },
-            onValueChange = onAmountChange,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
-            ),
-            textStyle = MaterialTheme.typography.titleMedium.copy(
-                textAlign = TextAlign.End
-            ),
-            readOnly = amountReadOnly,
-            modifier = Modifier.weight(1f),
-            colors = TextFieldDefaults.colors().copy(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
-            )
-        )
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.width(120.dp)
+        Row(
+            modifier = modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            TextField(
-                value = selectedCurrency,
-                onValueChange = {},
+            TextButton(
+                onClick = onCurrencyClick,
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                ),
+                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
                 modifier = Modifier
-                    .menuAnchor(type = MenuAnchorType.PrimaryNotEditable)
-                    .padding(start = 8.dp),
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
+                    .defaultMinSize(minWidth = 60.dp)
+            ) {
+                Text(
+                    text = selectedCurrency.getFlagEmoji(),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 20.sp,
+                        lineHeight = 24.sp,
+                    ),
+                    modifier = Modifier.padding(end = 16.dp),
+                )
+
+                Text(
+                    text = selectedCurrency,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                    )
+                )
+            }
+
+            TextField(
+                value = amount,
+                onValueChange = onAmountChange,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                ),
+                textStyle = MaterialTheme.typography.titleMedium.copy(
+                    textAlign = TextAlign.End, color = MaterialTheme.colorScheme.onSurface
+                ),
+                readOnly = amountReadOnly,
+                modifier = Modifier.weight(1f),
                 colors = TextFieldDefaults.colors().copy(
                     focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
                 )
             )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                currencies.forEach { currency ->
-                    DropdownMenuItem(
-                        text = { Text(text = currency) },
-                        onClick = {
-                            onCurrencySelected(currency)
-                            expanded = false
-                        }
-                    )
-                }
-            }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun Preview() {
+    CurrencyExchangerTheme {
+        CurrencyInputField(
+            selectedCurrency = "USD",
+            onCurrencyClick = {},
+            amount = "100.0",
+            label = "Amount"
+        )
     }
 }

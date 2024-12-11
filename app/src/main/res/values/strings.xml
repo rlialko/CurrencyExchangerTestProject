@@ -24,12 +24,17 @@
     <string name="done">Done</string>
     <string name="sell">Sell</string>
     <string name="receive">Receive</string>
-    <string name="submit">Submit</string>
+    <string name="submit_button">Submit</string>
     <string name="retry">Retry</string>
     <string name="reset_button">Reset all data</string>
 
     <string name="transaction_format">%1$s %2$s -> %3$s %4$s</string>
     <string name="commission">Commission: %1$s %2$s</string>
     <string name="date_format">Date: %1$s</string>
+    <string name="no_transactions">No transactions yet</string>
+    <plurals name="you_have_wallets">
+        <item quantity="one">You have %d active wallet</item>
+        <item quantity="other">You have %d active wallets</item>
+    </plurals>
 
 </resources>

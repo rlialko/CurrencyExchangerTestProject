@@ -22,7 +22,7 @@ fun TransactionItem(transaction: Transaction) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = stringResource(
@@ -32,7 +32,9 @@ fun TransactionItem(transaction: Transaction) {
                 transaction.buyValue,
                 transaction.buyCurrency
             ),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
             fontSize = 16.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -56,7 +58,8 @@ fun TransactionItem(transaction: Transaction) {
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         HorizontalDivider()
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

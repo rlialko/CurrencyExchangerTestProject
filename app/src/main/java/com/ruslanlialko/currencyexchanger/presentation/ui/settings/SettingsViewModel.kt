@@ -14,7 +14,7 @@ class SettingsViewModel(
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<SettingsUiState> =
-        MutableStateFlow(SettingsUiState.Initial)
+        MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     fun resetInitialBalance() {
@@ -26,6 +26,6 @@ class SettingsViewModel(
 
 }
 
-sealed class SettingsUiState() {
-    data object Initial : SettingsUiState()
-}
+data class SettingsUiState(
+    val isLoading: Boolean = false
+)
