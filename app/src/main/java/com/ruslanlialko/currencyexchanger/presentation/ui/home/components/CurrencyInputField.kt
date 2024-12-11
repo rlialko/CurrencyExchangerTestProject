@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,11 +52,11 @@ fun CurrencyInputField(
                 fontSize = 14.sp,
                 lineHeight = 16.sp,
             ),
-            modifier = Modifier.padding(bottom =4.dp),
+            modifier = Modifier.padding(bottom = 4.dp),
         )
 
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -62,7 +65,7 @@ fun CurrencyInputField(
                 colors = ButtonDefaults.textButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
                 ),
-                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp),
                 modifier = Modifier
                     .defaultMinSize(minWidth = 60.dp)
             ) {
@@ -72,7 +75,7 @@ fun CurrencyInputField(
                         fontSize = 20.sp,
                         lineHeight = 24.sp,
                     ),
-                    modifier = Modifier.padding(end = 16.dp),
+                    modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                 )
 
                 Text(
@@ -80,16 +83,25 @@ fun CurrencyInputField(
                     style = MaterialTheme.typography.titleMedium.copy(
                     )
                 )
+
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
 
             TextField(
                 value = amount,
                 onValueChange = onAmountChange,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
                 ),
                 textStyle = MaterialTheme.typography.titleMedium.copy(
-                    textAlign = TextAlign.End, color = MaterialTheme.colorScheme.onSurface
+                    textAlign = TextAlign.End,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 24.sp,
+                    lineHeight = 30.sp,
                 ),
                 readOnly = amountReadOnly,
                 modifier = Modifier.weight(1f),

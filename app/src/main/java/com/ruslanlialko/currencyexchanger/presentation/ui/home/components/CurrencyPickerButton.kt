@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.ruslanlialko.currencyexchanger.presentation.utils.getFlagEmoji
 
 @Composable
-fun CurrencyButton(currency: String, onClick: () -> Unit) {
+fun CurrencyPickerButton(currency: String, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

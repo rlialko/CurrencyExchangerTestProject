@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -32,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ruslanlialko.currencyexchanger.R
@@ -41,8 +42,8 @@ import com.ruslanlialko.currencyexchanger.domain.exception.UnknownException
 import com.ruslanlialko.currencyexchanger.domain.model.Transaction
 import com.ruslanlialko.currencyexchanger.presentation.theme.CurrencyExchangerTheme
 import com.ruslanlialko.currencyexchanger.presentation.ui.home.components.BalanceItem
-import com.ruslanlialko.currencyexchanger.presentation.ui.home.components.CurrencyButton
 import com.ruslanlialko.currencyexchanger.presentation.ui.home.components.CurrencyInputField
+import com.ruslanlialko.currencyexchanger.presentation.ui.home.components.CurrencyPickerButton
 import com.ruslanlialko.currencyexchanger.presentation.utils.formatAmount
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -117,7 +118,7 @@ fun HomeScreen(
             LazyColumn {
                 items(uiState.balances.size) { index ->
                     val currency = uiState.balances[index].currency
-                    CurrencyButton(currency = currency) {
+                    CurrencyPickerButton(currency = currency) {
                         viewModel.selectSellCurrency(currency)
                         coroutineScope.launch {
                             bottomSheetStateSell.hide()
@@ -140,7 +141,7 @@ fun HomeScreen(
             LazyColumn {
                 items(uiState.allCurrencies.size) { index ->
                     val currency = uiState.allCurrencies[index]
-                    CurrencyButton(currency = currency) {
+                    CurrencyPickerButton(currency = currency) {
                         viewModel.selectBuyCurrency(currency)
                         coroutineScope.launch {
                             bottomSheetStateBuy.hide()
@@ -190,7 +191,8 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(top = 24.dp)
+                .padding(top = 16.dp)
+                .fillMaxWidth()
                 .background(
                     color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(
                         topStart = 16.dp, topEnd = 16.dp
@@ -199,7 +201,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when {
-                uiState.isLoading -> {
+                uiState.isLoadingRates -> {
                     HomeLoadingState()
                 }
 
@@ -214,7 +216,8 @@ fun HomeScreen(
                     if (uiState.allCurrencies.isNotEmpty()) {
                         val pattern = remember { Regex("^[0-9]*\\.?[0-9]{0,2}$") }
 
-                        CurrencyInputField(label = stringResource(id = R.string.sell),
+                        CurrencyInputField(
+                            label = stringResource(id = R.string.sell),
                             selectedCurrency = uiState.selectedSellCurrency,
                             onCurrencyClick = {
                                 showBottomSheetSell = true
@@ -224,7 +227,9 @@ fun HomeScreen(
                                 if (it.isEmpty() || it.matches(pattern)) {
                                     viewModel.updateSellAmount(it)
                                 }
-                            })
+                            },
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
 
                         HorizontalDivider(
                             color = MaterialTheme.colorScheme.tertiary, thickness = 0.5.dp
@@ -247,6 +252,7 @@ fun HomeScreen(
                                 viewModel.exchange()
                             }, modifier = Modifier
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
+                                .height(56.dp)
                                 .fillMaxWidth()
                         ) {
                             Text(text = stringResource(id = R.string.submit_button))
@@ -263,30 +269,50 @@ fun HomeScreen(
 private fun HomeErrorState(error: Throwable, onRetry: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .fillMaxWidth()
     ) {
+
         when (error) {
             is UnknownException -> {
                 Text(
                     text = stringResource(id = R.string.unknown_error),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-                Text(text = stringResource(id = R.string.unknown_error_message))
+                Text(
+                    text = stringResource(id = R.string.unknown_error_message),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+
+                    )
+                )
             }
 
             is NetworkException -> {
                 Text(
                     text = stringResource(id = R.string.network_error),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-                Text(text = stringResource(id = R.string.network_error_message))
+                Text(
+                    text = stringResource(id = R.string.network_error_message),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+
+                    )
+                )
             }
         }
 
         Button(
             onClick = {
                 onRetry()
-            }, modifier = Modifier.padding(16.dp)
+            }, modifier = Modifier
+                .padding(16.dp)
         ) {
             Text(text = stringResource(id = R.string.retry))
         }
@@ -306,7 +332,7 @@ fun HomeLoadingState() {
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PreviewError() {
     CurrencyExchangerTheme {
@@ -314,7 +340,7 @@ private fun PreviewError() {
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PreviewLoading() {
     CurrencyExchangerTheme {

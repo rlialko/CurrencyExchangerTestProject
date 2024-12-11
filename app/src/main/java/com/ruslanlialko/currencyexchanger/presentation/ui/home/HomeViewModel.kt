@@ -70,7 +70,7 @@ class HomeViewModel(
                         is Outcome.Success -> {
                             _uiState.update {
                                 it.copy(
-                                    isLoading = false,
+                                    isLoadingRates = false,
                                     error = null,
                                     allCurrencies = outcome.data!!.rates.keys.toList()
                                 )
@@ -80,7 +80,7 @@ class HomeViewModel(
                         is Outcome.Error -> {
                             _uiState.update {
                                 it.copy(
-                                    isLoading = false,
+                                    isLoadingRates = false,
                                     error = outcome.error
                                 )
                             }
@@ -143,8 +143,13 @@ class HomeViewModel(
     }
 
     fun updateSellAmount(newAmount: String) {
+        val sanitizedAmount = if (newAmount.startsWith("0") && newAmount.length > 1) {
+            newAmount.drop(1)
+        } else {
+            newAmount
+        }
         _uiState.update {
-            it.copy(sellAmount = newAmount.ifEmpty { "0" })
+            it.copy(sellAmount = sanitizedAmount.ifEmpty { "0" })
         }
         recalculateBuyAmount()
     }
@@ -173,7 +178,7 @@ class HomeViewModel(
 }
 
 data class HomeUiState(
-    val isLoading: Boolean = true,
+    val isLoadingRates: Boolean = true,
     val selectedSellCurrency: String = "EUR",
     val selectedBuyCurrency: String = "USD",
     val sellAmount: String = "0",
