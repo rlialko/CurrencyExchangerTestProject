@@ -13,9 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -23,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ruslanlialko.currencyexchanger.presentation.ui.home.HomeScreen
 import com.ruslanlialko.currencyexchanger.presentation.ui.settings.SettingsScreen
@@ -33,13 +31,15 @@ val LocalNavController = compositionLocalOf<NavController> { error("No NavContro
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     CompositionLocalProvider(LocalNavController provides navController) {
         Scaffold(
             bottomBar = {
                 BottomAppBar {
-                    topLevelRoutes.forEachIndexed { index, topLevelRoute ->
+                    topLevelRoutes.forEach { topLevelRoute ->
+                        val isSelected =
+                            navBackStackEntry?.destination?.route?.contains(topLevelRoute.route.javaClass.simpleName) == true
                         NavigationBarItem(
                             icon = {
                                 Icon(
@@ -48,7 +48,7 @@ fun AppNavigation() {
                                 )
                             },
                             label = { Text(text = stringResource(topLevelRoute.nameId)) },
-                            selected = selectedIndex == index,
+                            selected = isSelected,
                             colors = NavigationBarItemDefaults.colors().copy(
                                 selectedIndicatorColor = Color.Transparent,
                                 selectedIconColor = MaterialTheme.colorScheme.secondary,
@@ -57,7 +57,6 @@ fun AppNavigation() {
                                 unselectedTextColor = MaterialTheme.colorScheme.tertiary,
                             ),
                             onClick = {
-                                selectedIndex = index
                                 navController.navigate(topLevelRoute.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
