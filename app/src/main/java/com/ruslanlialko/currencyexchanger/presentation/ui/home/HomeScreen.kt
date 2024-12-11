@@ -1,6 +1,9 @@
 package com.ruslanlialko.currencyexchanger.presentation.ui.home
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,15 +57,17 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     var showDialog by remember { mutableStateOf(false) }
-    var showBottomSheetSell by remember { mutableStateOf(false) }
-    var showBottomSheetBuy by remember { mutableStateOf(false) }
     var latestTransaction by remember { mutableStateOf(null as Transaction?) }
 
     val bottomSheetStateSell = rememberModalBottomSheetState()
     val bottomSheetStateBuy = rememberModalBottomSheetState()
-    val coroutineScope = rememberCoroutineScope()
+    var showBottomSheetSell by remember { mutableStateOf(false) }
+    var showBottomSheetBuy by remember { mutableStateOf(false) }
 
 
     LaunchedEffect(Unit) {
@@ -83,8 +88,7 @@ fun HomeScreen(
     }
 
     if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
+        AlertDialog(onDismissRequest = { showDialog = false },
             containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(text = stringResource(id = R.string.currency_converted)) },
             text = {
@@ -107,6 +111,7 @@ fun HomeScreen(
                 }
             })
     }
+
     if (showBottomSheetSell) {
         ModalBottomSheet(
             sheetState = bottomSheetStateSell,
@@ -197,71 +202,69 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(
                         topStart = 16.dp, topEnd = 16.dp
                     )
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally
+                ), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when {
-                uiState.isLoadingRates -> {
-                    HomeLoadingState()
+            if (uiState.error != null) {
+                HomeErrorState(uiState.error!!) {
+                    viewModel.fetchRates()
                 }
+            } else {
 
-                uiState.error != null -> {
-                    HomeErrorState(uiState.error!!) {
-                        viewModel.fetchRates()
-                    }
-                }
+                HomeLoadingState(isLoading = uiState.isLoadingRates)
 
-                else -> {
+                if (!uiState.isLoadingRates
+                    && uiState.allCurrencies.isNotEmpty()
+                ) {
+                    val pattern = remember { Regex("^[0-9]*\\.?[0-9]{0,2}$") }
 
-                    if (uiState.allCurrencies.isNotEmpty()) {
-                        val pattern = remember { Regex("^[0-9]*\\.?[0-9]{0,2}$") }
+                    CurrencyInputField(
+                        label = stringResource(id = R.string.sell),
+                        selectedCurrency = uiState.selectedSellCurrency,
+                        onCurrencyClick = {
+                            showBottomSheetSell = true
+                        },
+                        amount = uiState.sellAmount,
+                        onAmountChange = {
+                            if (it.isEmpty() || it.matches(pattern)) {
+                                viewModel.updateSellAmount(it)
+                            }
+                        },
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
 
-                        CurrencyInputField(
-                            label = stringResource(id = R.string.sell),
-                            selectedCurrency = uiState.selectedSellCurrency,
-                            onCurrencyClick = {
-                                showBottomSheetSell = true
-                            },
-                            amount = uiState.sellAmount,
-                            onAmountChange = {
-                                if (it.isEmpty() || it.matches(pattern)) {
-                                    viewModel.updateSellAmount(it)
-                                }
-                            },
-                            modifier = Modifier.padding(top = 8.dp)
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.tertiary, thickness = 0.5.dp
+                    )
+
+                    CurrencyInputField(
+                        label = stringResource(id = R.string.receive),
+                        selectedCurrency = uiState.selectedBuyCurrency,
+                        onCurrencyClick = {
+                            showBottomSheetBuy = true
+                        },
+                        amount = uiState.buyAmount,
+                        amountReadOnly = true,
+                    )
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.tertiary, thickness = 0.5.dp
+                    )
+                    Button(
+                        onClick = {
+                            viewModel.exchange()
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .height(48.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.submit_button),
+                            style = MaterialTheme.typography.labelLarge
                         )
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.tertiary, thickness = 0.5.dp
-                        )
-
-                        CurrencyInputField(
-                            label = stringResource(id = R.string.receive),
-                            selectedCurrency = uiState.selectedBuyCurrency,
-                            onCurrencyClick = {
-                                showBottomSheetBuy = true
-                            },
-                            amount = uiState.buyAmount,
-                            amountReadOnly = true,
-                        )
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.tertiary, thickness = 0.5.dp
-                        )
-                        Button(
-                            onClick = {
-                                viewModel.exchange()
-                            }, modifier = Modifier
-                                .padding(horizontal = 24.dp, vertical = 16.dp)
-                                .height(56.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Text(text = stringResource(id = R.string.submit_button))
-                        }
                     }
                 }
             }
         }
-
     }
 }
 
@@ -286,7 +289,6 @@ private fun HomeErrorState(error: Throwable, onRetry: () -> Unit) {
                     text = stringResource(id = R.string.unknown_error_message),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface
-
                     )
                 )
             }
@@ -302,7 +304,6 @@ private fun HomeErrorState(error: Throwable, onRetry: () -> Unit) {
                     text = stringResource(id = R.string.network_error_message),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface
-
                     )
                 )
             }
@@ -311,8 +312,7 @@ private fun HomeErrorState(error: Throwable, onRetry: () -> Unit) {
         Button(
             onClick = {
                 onRetry()
-            }, modifier = Modifier
-                .padding(16.dp)
+            }, modifier = Modifier.padding(16.dp)
         ) {
             Text(text = stringResource(id = R.string.retry))
         }
@@ -321,14 +321,18 @@ private fun HomeErrorState(error: Throwable, onRetry: () -> Unit) {
 
 
 @Composable
-fun HomeLoadingState() {
-    Column(
-        modifier = Modifier
-            .padding(24.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+fun HomeLoadingState(isLoading: Boolean) {
+    AnimatedVisibility(
+        visible = isLoading, enter = fadeIn(), exit = fadeOut()
     ) {
-        CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+        }
     }
 }
 
@@ -344,7 +348,7 @@ private fun PreviewError() {
 @Composable
 private fun PreviewLoading() {
     CurrencyExchangerTheme {
-        HomeLoadingState()
+        HomeLoadingState(true)
     }
 }
 
