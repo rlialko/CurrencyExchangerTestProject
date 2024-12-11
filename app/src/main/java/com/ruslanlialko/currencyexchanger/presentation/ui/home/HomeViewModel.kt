@@ -143,11 +143,12 @@ class HomeViewModel(
     }
 
     fun updateSellAmount(newAmount: String) {
-        val sanitizedAmount = if (newAmount.startsWith("0") && newAmount.length > 1) {
-            newAmount.drop(1)
-        } else {
-            newAmount
-        }
+        val sanitizedAmount =
+            if (newAmount.startsWith("0") && newAmount.length > 1 && newAmount[1] != '.') {
+                newAmount.drop(1)
+            } else {
+                newAmount
+            }
         _uiState.update {
             it.copy(sellAmount = sanitizedAmount.ifEmpty { "0" })
         }

@@ -1,12 +1,15 @@
 package com.ruslanlialko.currencyexchanger.presentation.utils
 
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 fun Double.formatAmount(): String {
-    val df = DecimalFormat("0.00")
+    val symbols = DecimalFormatSymbols(Locale.US)
+    val df = DecimalFormat("0.00", symbols)
     return df.format(this)
 }
 
