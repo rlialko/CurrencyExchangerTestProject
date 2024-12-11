@@ -103,6 +103,7 @@ fun CurrencyInputField(
                     fontSize = 24.sp,
                     lineHeight = 30.sp,
                 ),
+                maxLines = 1,
                 readOnly = amountReadOnly,
                 modifier = Modifier.weight(1f),
                 colors = TextFieldDefaults.colors().copy(
